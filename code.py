@@ -47,3 +47,35 @@ def rgb_effect():
             time.sleep(0.01)
     pixels.fill((0,  0,  0))  # Turn off the lights after RGB effect
 
+while True:
+    # Work session
+    if current_state == STATE_WORK:
+        work_session()
+        current_state = STATE_RGB  # Transition to RGB state after work
+
+    # RGB state
+    elif current_state == STATE_RGB:
+        rgb_effect()
+        start_time = time.monotonic()
+        while time.monotonic() - start_time < RGB_TIME:
+            if touch_one.value:
+                current_state = STATE_SHORT_BREAK  # Go to short break if pad  1 pressed during RGB
+                break
+            elif touch_two.value:
+                current_state = STATE_LONG_BREAK  # Go to long break if pad  2 pressed during RGB
+                break
+            time.sleep(0.1)
+        else:
+            current_state = STATE_WORK  # No touch detected, go back to work state
+
+    # Short break
+    elif current_state == STATE_SHORT_BREAK:
+        short_break()
+        current_state = STATE_WORK  # Reset to work state after short break
+
+    # Long break
+    elif current_state == STATE_LONG_BREAK:
+        long_break()
+        current_state = STATE_WORK  # Reset to work state after long break
+
+    time.sleep(0.1)
